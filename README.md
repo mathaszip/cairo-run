@@ -1,5 +1,2 @@
 A cairo production
-duboy
-dibil
-durak
-stark
+straknet is the best
