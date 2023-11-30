@@ -1,0 +1,43 @@
+//! > ==========================================================================
+
+//! > Test literals and dups.
+
+//! > test_runner_name
+test_function_generator
+
+//! > function
+fn foo() -> () {
+    let x = 5;
+    bar(x);
+    bar(x);
+}
+
+//! > function_name
+foo
+
+//! > module_code
+fn bar(x: felt252) { bar(x) }
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > sierra_gen_diagnostics
+
+//! > sierra_code
+label_test::foo::0:
+disable_ap_tracking() -> ()
+felt252_const<5>() -> ([0])
+dup<felt252>([0]) -> ([0], [1])
+store_temp<felt252>([1]) -> ([1])
+function_call<user@test::bar>([1]) -> ([2])
+drop<Unit>([2]) -> ()
+store_temp<felt252>([0]) -> ([0])
+function_call<user@test::bar>([0]) -> ([3])
+drop<Unit>([3]) -> ()
+struct_construct<Unit>() -> ([4])
+store_temp<Unit>([4]) -> ([4])
+return([4])
+
+//! > comment
+When fixing this test, Make sure that the added dups are on the const, and not the temps.

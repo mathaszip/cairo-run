@@ -1,0 +1,1215 @@
+//! > Test `embeddable_as` attribute with no arguments.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: `embeddable_as` attribute must have a single unnamed argument for the generated impl name, e.g.: #[embeddable_as(MyImpl)].
+ --> lib.cairo:8:5
+    #[embeddable_as]
+    ^**************^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` attribute with too many arguments.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(X, Y)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(X, Y)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: `embeddable_as` attribute must have a single unnamed argument for the generated impl name, e.g.: #[embeddable_as(MyImpl)].
+ --> lib.cairo:8:5
+    #[embeddable_as(X, Y)]
+    ^********************^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` attribute with named argument.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(name: MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(name: MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: `embeddable_as` attribute must have a single unnamed argument for the generated impl name, e.g.: #[embeddable_as(MyImpl)].
+ --> lib.cairo:8:5
+    #[embeddable_as(name: MyImpl)]
+    ^****************************^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` with no generic parameters.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl of MyTrait<ComponentState<usize>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl of MyTrait<ComponentState<usize>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: The first generic parameter of an impl with #[embeddable_as] should be `TContractState`.
+ --> lib.cairo:9:10
+    impl MyInnerImpl of MyTrait<ComponentState<usize>> {
+         ^*********^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` with empty generic parameters list.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<> of MyTrait<ComponentState<usize>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<> of MyTrait<ComponentState<usize>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: The first generic parameter of an impl with #[embeddable_as] should be `TContractState`.
+ --> lib.cairo:9:21
+    impl MyInnerImpl<> of MyTrait<ComponentState<usize>> {
+                    ^^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` with wrong first generic parameter.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<impl X: HasComponent<TContractState>, TContractState> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<impl X: HasComponent<TContractState>, TContractState> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: The first generic parameter of an impl with #[embeddable_as] should be `TContractState`.
+ --> lib.cairo:9:21
+    impl MyInnerImpl<impl X: HasComponent<TContractState>, TContractState> of MyTrait<ComponentState<TContractState>> {
+                    ^****************************************************^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` with no generic parameter that is an impl of HasComponent<TContractState>.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing() {}
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing();
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: An impl with #[embeddable_as] should have a generic parameter which is an impl of `HasComponent<TContractState>`.
+ --> lib.cairo:9:21
+    impl MyInnerImpl<TContractState> of MyTrait<ComponentState<TContractState>> {
+                    ^**************^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` impl with empty body.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>>;
+}
+trait MyTrait<T>;
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>>;
+}
+trait MyTrait<T>;
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: `embeddable_as` attribute is not supported for empty impls.
+ --> lib.cairo:9:118
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>>;
+                                                                                                                     ^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` with function with no/wrong `self` parameter.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn no_self() {}
+        fn self_of_wrong_type(self: ComponentState<TContractState>) {}
+    }
+}
+trait MyTrait<T> {
+    fn no_self();
+    fn self_of_wrong_type(self: T);
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn no_self() {}
+        fn self_of_wrong_type(self: ComponentState<TContractState>) {}
+    }
+}
+trait MyTrait<T> {
+    fn no_self();
+    fn self_of_wrong_type(self: T);
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+#[starknet::embeddable]
+pub impl MyImpl<
+    TContractState, impl X: HasComponent<TContractState>, impl TContractStateDrop: Drop<TContractState>
+> of MyTrait<TContractState> {
+}
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+
+
+embeddable:
+
+pub trait UnsafeNewContractStateTraitForMyImpl<
+    TContractState
+> {
+    fn unsafe_new_contract_state() -> TContractState;
+}
+
+
+
+pub mod __external_MyImpl {
+}
+
+pub mod __l1_handler_MyImpl {
+}
+
+pub mod __constructor_MyImpl {
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: A function in an #[embeddable_as] impl in a component must have a first `self` parameter.
+ --> lib.cairo:10:20
+        fn no_self() {}
+                   ^
+
+error: Plugin diagnostic: The first parameter of a function in an #[embeddable_as] impl in a component must be either `self: @ComponentState<TContractState>` (for view functions) or `ref self: ComponentState<TContractState>` (for external functions).
+ --> lib.cairo:11:31
+        fn self_of_wrong_type(self: ComponentState<TContractState>) {}
+                              ^**********************************^
+
+error: Not all trait items are implemented. Missing: 'no_self', 'self_of_wrong_type'.
+ --> lib.cairo:8:21
+    #[embeddable_as(MyImpl)]
+                    ^****^
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` with Destruct<TContractState>.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>, +Destruct<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: `embeddable_as` impls can't have impl generic parameters of `Destruct<TContractState>` or `PanicDestruct<TContractState>`.
+ --> lib.cairo:9:76
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>, +Destruct<TContractState>> of MyTrait<ComponentState<TContractState>> {
+                                                                           ^***********************^
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>, +Destruct<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > ==========================================================================
+
+//! > Test `embeddable_as` with PanicDestruct<TContractState>.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>, +PanicDestruct<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: `embeddable_as` impls can't have impl generic parameters of `Destruct<TContractState>` or `PanicDestruct<TContractState>`.
+ --> lib.cairo:9:76
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>, +PanicDestruct<TContractState>> of MyTrait<ComponentState<TContractState>> {
+                                                                           ^****************************^
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::component]
+mod component {
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>, +PanicDestruct<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn do_nothing(self: @ComponentState<TContractState>) {
+        }
+    }
+}
+trait MyTrait<T> {
+    fn do_nothing(self: @T);
+}
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}

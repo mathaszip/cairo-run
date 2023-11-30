@@ -1,0 +1,734 @@
+//! > Test expansion of a basic component.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: false)
+
+//! > cairo_code
+#[derive(Drop, starknet::Store)]
+struct MyType {
+    x: u32,
+}
+
+#[starknet::component]
+mod component {
+    use starknet::ContractAddress;
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {
+        data: u32,
+        map: LegacyMap<u32, u32>,
+        my_type_var: super::MyType,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Log: Log,
+    }
+    #[derive(Drop, starknet::Event)]
+    struct Log {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn get(self: @ComponentState<TContractState>, addr: ContractAddress) -> u32 {
+            self.data.read() + self.map.read(10)
+        }
+        fn set(ref self: ComponentState<TContractState>, addr: ContractAddress, value: u32) {
+            self.map.write(10, value);
+            self.data.write(value);
+            self.emit(Log{});
+        }
+    }
+}
+use starknet::ContractAddress;
+#[starknet::interface]
+trait MyTrait<T> {
+    fn get(self: @T, addr: ContractAddress) -> u32;
+    fn set(ref self: T, addr: ContractAddress, value: u32);
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[derive(Drop, starknet::Store)]
+struct MyType {
+    x: u32,
+}
+
+#[starknet::component]
+mod component {
+    use starknet::ContractAddress;
+    use super::MyTrait;
+
+    #[storage]
+    struct Storage {
+        data: u32,
+        map: LegacyMap<u32, u32>,
+        my_type_var: super::MyType,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Log: Log,
+    }
+    #[derive(Drop, starknet::Event)]
+    struct Log {}
+
+    #[embeddable_as(MyImpl)]
+    impl MyInnerImpl<TContractState, impl X: HasComponent<TContractState>> of MyTrait<ComponentState<TContractState>> {
+        fn get(self: @ComponentState<TContractState>, addr: ContractAddress) -> u32 {
+            self.data.read() + self.map.read(10)
+        }
+        fn set(ref self: ComponentState<TContractState>, addr: ContractAddress, value: u32) {
+            self.map.write(10, value);
+            self.data.write(value);
+            self.emit(Log{});
+        }
+    }
+}
+use starknet::ContractAddress;
+#[starknet::interface]
+trait MyTrait<T> {
+    fn get(self: @T, addr: ContractAddress) -> u32;
+    fn set(ref self: T, addr: ContractAddress, value: u32);
+}
+
+impls:
+
+impl MyTypeDrop of core::traits::Drop::<MyType>;
+
+
+starknet_derive:
+
+impl StoreMyType of starknet::Store::<MyType> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<MyType> {
+        let x = starknet::Store::<u32>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            MyType {
+                x,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: MyType) -> starknet::SyscallResult<()> {
+        starknet::Store::<u32>::write(address_domain, base, value.x)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<MyType> {
+        let x = starknet::Store::<u32>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            MyType {
+                x,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: MyType) -> starknet::SyscallResult<()> {
+        starknet::Store::<u32>::write_at_offset(address_domain, base, offset, value.x)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<u32>::size()
+    }
+}
+
+
+MyTraitDispatcherTrait:
+
+trait MyTraitDispatcherTrait<T> {
+    fn get(self: T, addr: ContractAddress) -> u32;
+    fn set(self: T, addr: ContractAddress, value: u32);
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct MyTraitDispatcher {
+    pub contract_address: starknet::ContractAddress,
+}
+
+impl MyTraitDispatcherImpl of MyTraitDispatcherTrait<MyTraitDispatcher> {
+    fn get(self: MyTraitDispatcher, addr: ContractAddress) -> u32 {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("get"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        core::option::OptionTrait::expect(
+            core::serde::Serde::<u32>::deserialize(ref __dispatcher_return_data__),
+            'Returned data too short',
+        )
+    }
+    fn set(self: MyTraitDispatcher, addr: ContractAddress, value: u32) {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+        core::serde::Serde::<u32>::serialize(@value, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("set"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        ()
+    }
+
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct MyTraitLibraryDispatcher {
+    pub class_hash: starknet::ClassHash,
+}
+
+impl MyTraitLibraryDispatcherImpl of MyTraitDispatcherTrait<MyTraitLibraryDispatcher> {
+    fn get(self: MyTraitLibraryDispatcher, addr: ContractAddress) -> u32 {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("get"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        core::option::OptionTrait::expect(
+            core::serde::Serde::<u32>::deserialize(ref __dispatcher_return_data__),
+            'Returned data too short',
+        )
+    }
+    fn set(self: MyTraitLibraryDispatcher, addr: ContractAddress, value: u32) {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+        core::serde::Serde::<u32>::serialize(@value, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("set"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        ()
+    }
+
+}
+
+trait MyTraitSafeDispatcherTrait<T> {
+    fn get(self: T, addr: ContractAddress) -> starknet::SyscallResult<u32>;
+    fn set(self: T, addr: ContractAddress, value: u32) -> starknet::SyscallResult<()>;
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct MyTraitSafeLibraryDispatcher {
+    pub class_hash: starknet::ClassHash,
+}
+
+impl MyTraitSafeLibraryDispatcherImpl of MyTraitSafeDispatcherTrait<MyTraitSafeLibraryDispatcher> {
+    fn get(self: MyTraitSafeLibraryDispatcher, addr: ContractAddress) -> starknet::SyscallResult<u32> {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("get"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(
+            core::option::OptionTrait::expect(
+                core::serde::Serde::<u32>::deserialize(ref __dispatcher_return_data__),
+                'Returned data too short',
+            )
+        )
+    }
+    fn set(self: MyTraitSafeLibraryDispatcher, addr: ContractAddress, value: u32) -> starknet::SyscallResult<()> {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+        core::serde::Serde::<u32>::serialize(@value, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("set"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(())
+    }
+
+}
+
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct MyTraitSafeDispatcher {
+    pub contract_address: starknet::ContractAddress,
+}
+
+impl MyTraitSafeDispatcherImpl of MyTraitSafeDispatcherTrait<MyTraitSafeDispatcher> {
+    fn get(self: MyTraitSafeDispatcher, addr: ContractAddress) -> starknet::SyscallResult<u32> {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("get"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(
+            core::option::OptionTrait::expect(
+                core::serde::Serde::<u32>::deserialize(ref __dispatcher_return_data__),
+                'Returned data too short',
+            )
+        )
+    }
+    fn set(self: MyTraitSafeDispatcher, addr: ContractAddress, value: u32) -> starknet::SyscallResult<()> {
+        let mut __calldata__ = core::traits::Default::default();
+        core::serde::Serde::<ContractAddress>::serialize(@addr, ref __calldata__);
+        core::serde::Serde::<u32>::serialize(@value, ref __calldata__);
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("set"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(())
+    }
+
+}
+
+
+impls:
+
+impl MyTraitDispatcherCopy of core::traits::Copy::<MyTraitDispatcher>;
+impl MyTraitDispatcherDrop of core::traits::Drop::<MyTraitDispatcher>;
+impl MyTraitDispatcherSerde of core::serde::Serde::<MyTraitDispatcher> {
+    fn serialize(self: @MyTraitDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.contract_address, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<MyTraitDispatcher> {
+        core::option::Option::Some(MyTraitDispatcher {
+            contract_address: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreMyTraitDispatcher of starknet::Store::<MyTraitDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<MyTraitDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            MyTraitDispatcher {
+                contract_address,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: MyTraitDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write(address_domain, base, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<MyTraitDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            MyTraitDispatcher {
+                contract_address,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: MyTraitDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write_at_offset(address_domain, base, offset, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ContractAddress>::size()
+    }
+}
+
+
+impls:
+
+impl MyTraitLibraryDispatcherCopy of core::traits::Copy::<MyTraitLibraryDispatcher>;
+impl MyTraitLibraryDispatcherDrop of core::traits::Drop::<MyTraitLibraryDispatcher>;
+impl MyTraitLibraryDispatcherSerde of core::serde::Serde::<MyTraitLibraryDispatcher> {
+    fn serialize(self: @MyTraitLibraryDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.class_hash, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<MyTraitLibraryDispatcher> {
+        core::option::Option::Some(MyTraitLibraryDispatcher {
+            class_hash: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreMyTraitLibraryDispatcher of starknet::Store::<MyTraitLibraryDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<MyTraitLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            MyTraitLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: MyTraitLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write(address_domain, base, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<MyTraitLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            MyTraitLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: MyTraitLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write_at_offset(address_domain, base, offset, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ClassHash>::size()
+    }
+}
+
+
+impls:
+
+impl MyTraitSafeLibraryDispatcherCopy of core::traits::Copy::<MyTraitSafeLibraryDispatcher>;
+impl MyTraitSafeLibraryDispatcherDrop of core::traits::Drop::<MyTraitSafeLibraryDispatcher>;
+impl MyTraitSafeLibraryDispatcherSerde of core::serde::Serde::<MyTraitSafeLibraryDispatcher> {
+    fn serialize(self: @MyTraitSafeLibraryDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.class_hash, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<MyTraitSafeLibraryDispatcher> {
+        core::option::Option::Some(MyTraitSafeLibraryDispatcher {
+            class_hash: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreMyTraitSafeLibraryDispatcher of starknet::Store::<MyTraitSafeLibraryDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<MyTraitSafeLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            MyTraitSafeLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: MyTraitSafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write(address_domain, base, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<MyTraitSafeLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            MyTraitSafeLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: MyTraitSafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write_at_offset(address_domain, base, offset, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ClassHash>::size()
+    }
+}
+
+
+impls:
+
+impl MyTraitSafeDispatcherCopy of core::traits::Copy::<MyTraitSafeDispatcher>;
+impl MyTraitSafeDispatcherDrop of core::traits::Drop::<MyTraitSafeDispatcher>;
+impl MyTraitSafeDispatcherSerde of core::serde::Serde::<MyTraitSafeDispatcher> {
+    fn serialize(self: @MyTraitSafeDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.contract_address, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<MyTraitSafeDispatcher> {
+        core::option::Option::Some(MyTraitSafeDispatcher {
+            contract_address: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreMyTraitSafeDispatcher of starknet::Store::<MyTraitSafeDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<MyTraitSafeDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            MyTraitSafeDispatcher {
+                contract_address,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: MyTraitSafeDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write(address_domain, base, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<MyTraitSafeDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            MyTraitSafeDispatcher {
+                contract_address,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: MyTraitSafeDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write_at_offset(address_domain, base, offset, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ContractAddress>::size()
+    }
+}
+
+
+component:
+
+
+
+    pub struct ComponentState<TContractState> {
+        pub data: data::ComponentMemberState,
+        pub map: map::ComponentMemberState,
+        pub my_type_var: my_type_var::ComponentMemberState,
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+            data: data::ComponentMemberState {},
+            map: map::ComponentMemberState {},
+            my_type_var: my_type_var::ComponentMemberState {},
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+    pub mod data {
+        use super::ContractAddress;
+        use super::MyTrait;
+        use super::Event;
+        use super::Log;
+        use super::MyInnerImpl;
+        #[derive(Copy, Drop)]
+        pub struct ComponentMemberState {}
+        impl StorageComponentMemberStateImpl of starknet::storage::StorageMemberAddressTrait<ComponentMemberState, u32> {
+            fn address(self: @ComponentMemberState) -> starknet::StorageBaseAddress nopanic {
+                starknet::storage_base_address_const::<0x354f1c2d0eb5771cd5bf67a6689fcd6eed9444d91a39e5ef32a9b4ae5ca14ff>()
+            }
+        }
+    }
+    pub mod map {
+        use super::ContractAddress;
+        use super::MyTrait;
+        use super::Event;
+        use super::Log;
+        use super::MyInnerImpl;
+        #[derive(Copy, Drop)]
+        pub struct ComponentMemberState {}
+
+        impl StorageMapComponentMemberStateImpl of starknet::storage::StorageMapMemberAddressTrait<ComponentMemberState, u32, u32> {
+            fn address(self: @ComponentMemberState, key: u32) -> starknet::StorageBaseAddress {
+                starknet::storage_base_address_from_felt252(
+                    core::hash::LegacyHash::<u32>::hash(0x1af9e30ee4fed507d9432e0f1308eb5bd12221bef97071a48d86951102231be, key))
+            }
+        }
+    }
+    pub mod my_type_var {
+        use super::ContractAddress;
+        use super::MyTrait;
+        use super::Event;
+        use super::Log;
+        use super::MyInnerImpl;
+        #[derive(Copy, Drop)]
+        pub struct ComponentMemberState {}
+        impl StorageComponentMemberStateImpl of starknet::storage::StorageMemberAddressTrait<ComponentMemberState, super::super::MyType> {
+            fn address(self: @ComponentMemberState) -> starknet::StorageBaseAddress nopanic {
+                starknet::storage_base_address_const::<0x1d7ac842e8e2a1c4fd94662d0a812cd378294e5156fee62dafbd49a010246c7>()
+            }
+        }
+    }
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+#[starknet::embeddable]
+pub impl MyImpl<
+    TContractState, impl X: HasComponent<TContractState>, impl TContractStateDrop: Drop<TContractState>
+> of MyTrait<TContractState> {
+    
+    fn get(self: @TContractState, addr: ContractAddress) -> u32 {
+        let component = HasComponent::get_component(self);
+        MyInnerImpl::get(component, addr)
+    }
+    
+    fn set(ref self: TContractState, addr: ContractAddress, value: u32) {
+        let mut component = HasComponent::get_component_mut(ref self);
+        MyInnerImpl::set(ref component, addr, value)
+    }
+}
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+            Event::Log(val) => {
+                core::array::ArrayTrait::append(ref keys, selector!("Log"));
+                starknet::Event::append_keys_and_data(
+                    val, ref keys, ref data
+                );
+            },
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        if __selector__ == selector!("Log") {
+                let val = starknet::Event::deserialize(
+                    ref keys, ref data
+                )?;
+                return Option::Some(Event::Log(val));
+        }
+        Option::None
+    }
+}
+impl EventLogIntoEvent of Into<Log, Event> {
+    fn into(self: Log) -> Event {
+        Event::Log(self)
+    }
+}
+
+
+
+impls:
+
+impl LogDrop of core::traits::Drop::<Log>;
+
+
+starknet_derive:
+
+impl LogIsEvent of starknet::Event<Log> {
+    fn append_keys_and_data(
+        self: @Log, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Log> {
+        Option::Some(Log {})
+    }
+}
+
+
+embeddable:
+
+pub trait UnsafeNewContractStateTraitForMyImpl<
+    TContractState
+> {
+    fn unsafe_new_contract_state() -> TContractState;
+}
+
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__MyImpl__get<TContractState, impl X: HasComponent<TContractState>, impl TContractStateDrop: Drop<TContractState>, impl UnsafeNewContractState: UnsafeNewContractStateTraitForMyImpl<TContractState>>(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    let __arg_addr = core::option::OptionTraitImpl::expect(
+        core::serde::Serde::<ContractAddress>::deserialize(ref data),
+        'Failed to deserialize param #1'
+    );
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = UnsafeNewContractState::unsafe_new_contract_state();
+    let res = MyImpl::<TContractState, X, TContractStateDrop>::get(@contract_state, __arg_addr);
+    let mut arr = core::array::array_new();
+    // References.
+    // Result.
+    core::serde::Serde::<u32>::serialize(@res, ref arr);
+    core::array::ArrayTrait::span(@arr)
+}
+
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__MyImpl__set<TContractState, impl X: HasComponent<TContractState>, impl TContractStateDrop: Drop<TContractState>, impl UnsafeNewContractState: UnsafeNewContractStateTraitForMyImpl<TContractState>>(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    let __arg_addr = core::option::OptionTraitImpl::expect(
+        core::serde::Serde::<ContractAddress>::deserialize(ref data),
+        'Failed to deserialize param #1'
+    );
+    let __arg_value = core::option::OptionTraitImpl::expect(
+        core::serde::Serde::<u32>::deserialize(ref data),
+        'Failed to deserialize param #2'
+    );
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = UnsafeNewContractState::unsafe_new_contract_state();
+    MyImpl::<TContractState, X, TContractStateDrop>::set(ref contract_state, __arg_addr, __arg_value);
+    let mut arr = core::array::array_new();
+    // References.
+    // Result.
+    core::array::ArrayTrait::span(@arr)
+}
+
+
+
+pub mod __external_MyImpl {
+    pub use super::__wrapper__MyImpl__get as get;
+    pub use super::__wrapper__MyImpl__set as set;
+}
+
+pub mod __l1_handler_MyImpl {
+}
+
+pub mod __constructor_MyImpl {
+}
+
+//! > expected_diagnostics

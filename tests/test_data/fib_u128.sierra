@@ -1,0 +1,186 @@
+type u128 = u128 [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::Panic = Struct<ut@core::panics::Panic> [storable: true, drop: true, dup: true, zero_sized: true];
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type core::result::Result::<core::integer::u128, core::integer::u128> = Enum<ut@core::result::Result::<core::integer::u128, core::integer::u128>, u128, u128> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<core::panics::Panic, Array<felt252>> = Struct<ut@Tuple, core::panics::Panic, Array<felt252>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Tuple<u128> = Struct<ut@Tuple, u128> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::PanicResult::<(core::integer::u128,)> = Enum<ut@core::panics::PanicResult::<(core::integer::u128,)>, Tuple<u128>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+
+libfunc disable_ap_tracking = disable_ap_tracking;
+libfunc snapshot_take<u128> = snapshot_take<u128>;
+libfunc u128_const<0> = u128_const<0>;
+libfunc drop<u128> = drop<u128>;
+libfunc rename<u128> = rename<u128>;
+libfunc u128_eq = u128_eq;
+libfunc branch_align = branch_align;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<u128> = store_temp<u128>;
+libfunc dup<u128> = dup<u128>;
+libfunc function_call<user@core::integer::U128Add::add> = function_call<user@core::integer::U128Add::add>;
+libfunc enum_match<core::panics::PanicResult::<(core::integer::u128,)>> = enum_match<core::panics::PanicResult::<(core::integer::u128,)>>;
+libfunc u128_const<1> = u128_const<1>;
+libfunc function_call<user@core::integer::U128Sub::sub> = function_call<user@core::integer::U128Sub::sub>;
+libfunc struct_deconstruct<Tuple<u128>> = struct_deconstruct<Tuple<u128>>;
+libfunc function_call<user@examples::fib_u128::fib> = function_call<user@examples::fib_u128::fib>;
+libfunc jump = jump;
+libfunc enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1> = enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1>;
+libfunc store_temp<core::panics::PanicResult::<(core::integer::u128,)>> = store_temp<core::panics::PanicResult::<(core::integer::u128,)>>;
+libfunc drop<Tuple<u128>> = drop<Tuple<u128>>;
+libfunc struct_construct<Tuple<u128>> = struct_construct<Tuple<u128>>;
+libfunc enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 0> = enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 0>;
+libfunc u128_overflowing_add = u128_overflowing_add;
+libfunc enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 0> = enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 0>;
+libfunc store_temp<core::result::Result::<core::integer::u128, core::integer::u128>> = store_temp<core::result::Result::<core::integer::u128, core::integer::u128>>;
+libfunc enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 1> = enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 1>;
+libfunc felt252_const<39878429859757942499084499860145094553463> = felt252_const<39878429859757942499084499860145094553463>;
+libfunc store_temp<felt252> = store_temp<felt252>;
+libfunc function_call<user@core::result::ResultTraitImpl::<core::integer::u128, core::integer::u128>::expect::<core::integer::u128Drop>> = function_call<user@core::result::ResultTraitImpl::<core::integer::u128, core::integer::u128>::expect::<core::integer::u128Drop>>;
+libfunc u128_overflowing_sub = u128_overflowing_sub;
+libfunc felt252_const<39878429859763533771555484554338820190071> = felt252_const<39878429859763533771555484554338820190071>;
+libfunc enum_match<core::result::Result::<core::integer::u128, core::integer::u128>> = enum_match<core::result::Result::<core::integer::u128, core::integer::u128>>;
+libfunc drop<felt252> = drop<felt252>;
+libfunc array_new<felt252> = array_new<felt252>;
+libfunc array_append<felt252> = array_append<felt252>;
+libfunc struct_construct<core::panics::Panic> = struct_construct<core::panics::Panic>;
+libfunc struct_construct<Tuple<core::panics::Panic, Array<felt252>>> = struct_construct<Tuple<core::panics::Panic, Array<felt252>>>;
+
+disable_ap_tracking() -> (); // 0
+snapshot_take<u128>([3]) -> ([4], [5]); // 1
+u128_const<0>() -> ([6]); // 2
+snapshot_take<u128>([6]) -> ([7], [8]); // 3
+drop<u128>([7]) -> (); // 4
+rename<u128>([5]) -> ([9]); // 5
+rename<u128>([8]) -> ([10]); // 6
+u128_eq([9], [10]) { fallthrough() 55() }; // 7
+branch_align() -> (); // 8
+store_temp<RangeCheck>([0]) -> ([0]); // 9
+store_temp<u128>([1]) -> ([1]); // 10
+dup<u128>([2]) -> ([2], [11]); // 11
+store_temp<u128>([11]) -> ([11]); // 12
+function_call<user@core::integer::U128Add::add>([0], [1], [11]) -> ([12], [13]); // 13
+enum_match<core::panics::PanicResult::<(core::integer::u128,)>>([13]) { fallthrough([14]) 48([15]) }; // 14
+branch_align() -> (); // 15
+u128_const<1>() -> ([16]); // 16
+store_temp<RangeCheck>([12]) -> ([12]); // 17
+store_temp<u128>([4]) -> ([4]); // 18
+store_temp<u128>([16]) -> ([16]); // 19
+function_call<user@core::integer::U128Sub::sub>([12], [4], [16]) -> ([17], [18]); // 20
+enum_match<core::panics::PanicResult::<(core::integer::u128,)>>([18]) { fallthrough([19]) 41([20]) }; // 21
+branch_align() -> (); // 22
+struct_deconstruct<Tuple<u128>>([14]) -> ([21]); // 23
+struct_deconstruct<Tuple<u128>>([19]) -> ([22]); // 24
+store_temp<RangeCheck>([17]) -> ([17]); // 25
+store_temp<u128>([2]) -> ([2]); // 26
+store_temp<u128>([21]) -> ([21]); // 27
+store_temp<u128>([22]) -> ([22]); // 28
+function_call<user@examples::fib_u128::fib>([17], [2], [21], [22]) -> ([23], [24]); // 29
+enum_match<core::panics::PanicResult::<(core::integer::u128,)>>([24]) { fallthrough([25]) 36([26]) }; // 30
+branch_align() -> (); // 31
+struct_deconstruct<Tuple<u128>>([25]) -> ([27]); // 32
+store_temp<RangeCheck>([23]) -> ([28]); // 33
+store_temp<u128>([27]) -> ([29]); // 34
+jump() { 60() }; // 35
+branch_align() -> (); // 36
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1>([26]) -> ([30]); // 37
+store_temp<RangeCheck>([23]) -> ([23]); // 38
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([30]) -> ([30]); // 39
+return([23], [30]); // 40
+branch_align() -> (); // 41
+drop<Tuple<u128>>([14]) -> (); // 42
+drop<u128>([2]) -> (); // 43
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1>([20]) -> ([31]); // 44
+store_temp<RangeCheck>([17]) -> ([17]); // 45
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([31]) -> ([31]); // 46
+return([17], [31]); // 47
+branch_align() -> (); // 48
+drop<u128>([2]) -> (); // 49
+drop<u128>([4]) -> (); // 50
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1>([15]) -> ([32]); // 51
+store_temp<RangeCheck>([12]) -> ([12]); // 52
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([32]) -> ([32]); // 53
+return([12], [32]); // 54
+branch_align() -> (); // 55
+drop<u128>([2]) -> (); // 56
+drop<u128>([4]) -> (); // 57
+store_temp<RangeCheck>([0]) -> ([28]); // 58
+store_temp<u128>([1]) -> ([29]); // 59
+struct_construct<Tuple<u128>>([29]) -> ([33]); // 60
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 0>([33]) -> ([34]); // 61
+store_temp<RangeCheck>([28]) -> ([28]); // 62
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([34]) -> ([34]); // 63
+return([28], [34]); // 64
+u128_overflowing_add([0], [1], [2]) { fallthrough([3], [4]) 71([5], [6]) }; // 65
+branch_align() -> (); // 66
+enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 0>([4]) -> ([7]); // 67
+store_temp<RangeCheck>([3]) -> ([8]); // 68
+store_temp<core::result::Result::<core::integer::u128, core::integer::u128>>([7]) -> ([9]); // 69
+jump() { 75() }; // 70
+branch_align() -> (); // 71
+enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 1>([6]) -> ([10]); // 72
+store_temp<RangeCheck>([5]) -> ([8]); // 73
+store_temp<core::result::Result::<core::integer::u128, core::integer::u128>>([10]) -> ([9]); // 74
+felt252_const<39878429859757942499084499860145094553463>() -> ([11]); // 75
+store_temp<felt252>([11]) -> ([11]); // 76
+function_call<user@core::result::ResultTraitImpl::<core::integer::u128, core::integer::u128>::expect::<core::integer::u128Drop>>([9], [11]) -> ([12]); // 77
+enum_match<core::panics::PanicResult::<(core::integer::u128,)>>([12]) { fallthrough([13]) 86([14]) }; // 78
+branch_align() -> (); // 79
+struct_deconstruct<Tuple<u128>>([13]) -> ([15]); // 80
+struct_construct<Tuple<u128>>([15]) -> ([16]); // 81
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 0>([16]) -> ([17]); // 82
+store_temp<RangeCheck>([8]) -> ([8]); // 83
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([17]) -> ([17]); // 84
+return([8], [17]); // 85
+branch_align() -> (); // 86
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1>([14]) -> ([18]); // 87
+store_temp<RangeCheck>([8]) -> ([8]); // 88
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([18]) -> ([18]); // 89
+return([8], [18]); // 90
+u128_overflowing_sub([0], [1], [2]) { fallthrough([3], [4]) 97([5], [6]) }; // 91
+branch_align() -> (); // 92
+enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 0>([4]) -> ([7]); // 93
+store_temp<RangeCheck>([3]) -> ([8]); // 94
+store_temp<core::result::Result::<core::integer::u128, core::integer::u128>>([7]) -> ([9]); // 95
+jump() { 101() }; // 96
+branch_align() -> (); // 97
+enum_init<core::result::Result::<core::integer::u128, core::integer::u128>, 1>([6]) -> ([10]); // 98
+store_temp<RangeCheck>([5]) -> ([8]); // 99
+store_temp<core::result::Result::<core::integer::u128, core::integer::u128>>([10]) -> ([9]); // 100
+felt252_const<39878429859763533771555484554338820190071>() -> ([11]); // 101
+store_temp<felt252>([11]) -> ([11]); // 102
+function_call<user@core::result::ResultTraitImpl::<core::integer::u128, core::integer::u128>::expect::<core::integer::u128Drop>>([9], [11]) -> ([12]); // 103
+enum_match<core::panics::PanicResult::<(core::integer::u128,)>>([12]) { fallthrough([13]) 112([14]) }; // 104
+branch_align() -> (); // 105
+struct_deconstruct<Tuple<u128>>([13]) -> ([15]); // 106
+struct_construct<Tuple<u128>>([15]) -> ([16]); // 107
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 0>([16]) -> ([17]); // 108
+store_temp<RangeCheck>([8]) -> ([8]); // 109
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([17]) -> ([17]); // 110
+return([8], [17]); // 111
+branch_align() -> (); // 112
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1>([14]) -> ([18]); // 113
+store_temp<RangeCheck>([8]) -> ([8]); // 114
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([18]) -> ([18]); // 115
+return([8], [18]); // 116
+enum_match<core::result::Result::<core::integer::u128, core::integer::u128>>([0]) { fallthrough([2]) 124([3]) }; // 117
+branch_align() -> (); // 118
+drop<felt252>([1]) -> (); // 119
+struct_construct<Tuple<u128>>([2]) -> ([4]); // 120
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 0>([4]) -> ([5]); // 121
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([5]) -> ([5]); // 122
+return([5]); // 123
+branch_align() -> (); // 124
+drop<u128>([3]) -> (); // 125
+array_new<felt252>() -> ([6]); // 126
+array_append<felt252>([6], [1]) -> ([7]); // 127
+struct_construct<core::panics::Panic>() -> ([8]); // 128
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([8], [7]) -> ([9]); // 129
+enum_init<core::panics::PanicResult::<(core::integer::u128,)>, 1>([9]) -> ([10]); // 130
+store_temp<core::panics::PanicResult::<(core::integer::u128,)>>([10]) -> ([10]); // 131
+return([10]); // 132
+
+examples::fib_u128::fib@0([0]: RangeCheck, [1]: u128, [2]: u128, [3]: u128) -> (RangeCheck, core::panics::PanicResult::<(core::integer::u128,)>);
+core::integer::U128Add::add@65([0]: RangeCheck, [1]: u128, [2]: u128) -> (RangeCheck, core::panics::PanicResult::<(core::integer::u128,)>);
+core::integer::U128Sub::sub@91([0]: RangeCheck, [1]: u128, [2]: u128) -> (RangeCheck, core::panics::PanicResult::<(core::integer::u128,)>);
+core::result::ResultTraitImpl::<core::integer::u128, core::integer::u128>::expect::<core::integer::u128Drop>@117([0]: core::result::Result::<core::integer::u128, core::integer::u128>, [1]: felt252) -> (core::panics::PanicResult::<(core::integer::u128,)>);

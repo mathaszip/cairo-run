@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  parallel-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cmd:
+          - test -p cairo-lang-casm
+          - test -p cairo-lang-compiler
+          - test -p cairo-lang-debug
+          - test -p cairo-lang-defs
+          - test -p cairo-lang-diagnostics
+          - test -p cairo-lang-eq-solver
+          - test -p cairo-lang-filesystem
+          - test -p cairo-lang-formatter
+          - test -p cairo-lang-language-server
+          - test -p cairo-lang-lowering
+          - test -p cairo-lang-parser
+          - test -p cairo-lang-plugins
+          - test -p cairo-lang-proc-macros
+          - test -p cairo-lang-project
+          - test -p cairo-lang-runner
+          - test -p cairo-lang-semantic
+          - test -p cairo-lang-sierra
+          - test -p cairo-lang-sierra-ap-change
+          - test -p cairo-lang-sierra-gas
+          - test -p cairo-lang-sierra-generator
+          - test -p cairo-lang-sierra-to-casm
+          - test -p cairo-lang-sierra-type-size
+          - test -p cairo-lang-starknet
+          - test -p cairo-lang-syntax
+          - test -p cairo-lang-syntax-codegen
+          - test -p cairo-lang-test-runner
+          - test -p cairo-lang-test-utils
+          - test -p cairo-lang-utils
+          - test -p tests
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          components: rustfmt
+          toolchain: nightly-2023-07-05
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+      - run: |
+          cargo ${{ matrix.cmd }}
+  test:
+    if: ${{ always() }}
+    needs: parallel-tests
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.parallel-tests.result == 'success'
+        run: exit 0
+      - if: needs.parallel-tests.result != 'success'
+        run: exit 1
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          components: rustfmt
+          toolchain: nightly-2023-07-05
+      - uses: Swatinem/rust-cache@v2
+      - run: scripts/rust_fmt.sh --check
+
+  # Checks all .cairo files in the repo are formatted correctly.
+  cairofmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: scripts/cairo_fmt.sh --check
+
+  # Checks all cairo corelib tests run correctly.
+  cairotest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: scripts/cairo_test.sh
+      - run: scripts/starknet_test.sh
+
+  # Check for unnecessary dependencies.
+  udeps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Machete
+        uses: vsuryamurthy/cargo-machete-action@v1
+  
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: >
+          scripts/clippy.sh
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: >
+          scripts/docs.sh
+
+  sierra-updated-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - run: >
+          scripts/sierra_update_check.sh origin/$GITHUB_BASE_REF origin/$GITHUB_HEAD_REF

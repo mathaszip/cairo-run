@@ -1,0 +1,154 @@
+//! > Test expansion of a simple starknet contract.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: false)
+
+//! > cairo_code
+#[starknet::contract]
+mod test_contract {
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    #[raw_output]
+    fn test_raw_output(ref self: ContractState) -> Span::<felt252> {
+        Default::<Array<felt252>>::default().span()
+    }
+
+    #[external(v0)]
+    #[raw_output]
+    fn test_raw_output_with_spaces(ref self: ContractState) -> Span     ::   < felt252  > {
+        Default::<Array<felt252>>::default().span()
+    }
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::contract]
+mod test_contract {
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    #[raw_output]
+    fn test_raw_output(ref self: ContractState) -> Span::<felt252> {
+        Default::<Array<felt252>>::default().span()
+    }
+
+    #[external(v0)]
+    #[raw_output]
+    fn test_raw_output_with_spaces(ref self: ContractState) -> Span     ::   < felt252  > {
+        Default::<Array<felt252>>::default().span()
+    }
+}
+
+contract:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ContractState {
+    }
+    impl ContractStateDrop of Drop<ContractState> {}
+    #[inline(always)]
+    pub fn unsafe_new_contract_state() -> ContractState {
+        ContractState {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn contract_state_for_testing() -> ContractState {
+        unsafe_new_contract_state()
+    }
+    
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait
+};
+#[cfg(test)]
+pub const TEST_CLASS_HASH: felt252 = 0xe8fd97ed2950722a36523186b7f01aeba6db1a2faedf427e91639a6252388a;
+
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__test_raw_output(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = unsafe_new_contract_state();
+    test_raw_output(ref contract_state, )
+}
+
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__test_raw_output_with_spaces(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = unsafe_new_contract_state();
+    test_raw_output_with_spaces(ref contract_state, )
+}
+
+
+pub mod __external {
+    pub use super::__wrapper__test_raw_output as test_raw_output;
+    pub use super::__wrapper__test_raw_output_with_spaces as test_raw_output_with_spaces;
+}
+pub mod __l1_handler {
+}
+pub mod __constructor {
+}
+    impl ContractStateEventEmitter of starknet::event::EventEmitter<
+        ContractState, Event
+    > {
+        fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(
+            ref self: ContractState, event: S
+        ) {
+            let event: Event = core::traits::Into::into(event);
+            let mut keys = Default::<core::array::Array>::default();
+            let mut data = Default::<core::array::Array>::default();
+            starknet::Event::append_keys_and_data(@event, ref keys, ref data);
+            starknet::SyscallResultTraitImpl::unwrap_syscall(
+                starknet::syscalls::emit_event_syscall(
+                    core::array::ArrayTrait::span(@keys),
+                    core::array::ArrayTrait::span(@data),
+                )
+            )
+        }
+    }
+
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics

@@ -1,0 +1,713 @@
+//! > Test expansion of Starknet for user types.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+#[starknet::contract]
+mod test_contract {
+    use hash::HashStateExTrait;
+
+    #[storage]
+    struct Storage {
+        var: WrappedFelt252,
+        zero_size: ZeroSize,
+        mapping: LegacyMap::<WrappedFelt252, WrappedFelt252>,
+        zero_size_mapping: LegacyMap::<ZeroSize, ZeroSize>,
+    }
+    #[derive(Drop, Hash, starknet::Store)]
+    struct WrappedFelt252 {
+        value: felt252,
+    }
+    #[derive(Drop, Hash, Serde, starknet::Store)]
+    struct ZeroSize {}
+
+    #[derive(Drop, Serde, starknet::Store)]
+    enum SimpleEnum {
+        A: u8,
+        B: u16,
+    }
+
+    #[derive(Drop, Serde, starknet::Store)]
+    enum EnumWithDefault {
+        A: u8,
+        #[default]
+        B: u16,
+        C: u32,
+    }
+
+    #[derive(Drop, Serde, starknet::Store)]
+    enum BadEnumWithDefault {
+        A: u8,
+        #[default]
+        B: u16,
+        #[default]
+        C: u32,
+    }
+}
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::contract]
+mod test_contract {
+    use hash::HashStateExTrait;
+
+    #[storage]
+    struct Storage {
+        var: WrappedFelt252,
+        zero_size: ZeroSize,
+        mapping: LegacyMap::<WrappedFelt252, WrappedFelt252>,
+        zero_size_mapping: LegacyMap::<ZeroSize, ZeroSize>,
+    }
+    #[derive(Drop, Hash, starknet::Store)]
+    struct WrappedFelt252 {
+        value: felt252,
+    }
+    #[derive(Drop, Hash, Serde, starknet::Store)]
+    struct ZeroSize {}
+
+    #[derive(Drop, Serde, starknet::Store)]
+    enum SimpleEnum {
+        A: u8,
+        B: u16,
+    }
+
+    #[derive(Drop, Serde, starknet::Store)]
+    enum EnumWithDefault {
+        A: u8,
+        #[default]
+        B: u16,
+        C: u32,
+    }
+
+    #[derive(Drop, Serde, starknet::Store)]
+    enum BadEnumWithDefault {
+        A: u8,
+        #[default]
+        B: u16,
+        #[default]
+        C: u32,
+    }
+}
+
+contract:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ContractState {
+        pub var: var::ContractMemberState,
+        pub zero_size: zero_size::ContractMemberState,
+        pub mapping: mapping::ContractMemberState,
+        pub zero_size_mapping: zero_size_mapping::ContractMemberState,
+    }
+    impl ContractStateDrop of Drop<ContractState> {}
+    #[inline(always)]
+    pub fn unsafe_new_contract_state() -> ContractState {
+        ContractState {
+            var: var::ContractMemberState {},
+            zero_size: zero_size::ContractMemberState {},
+            mapping: mapping::ContractMemberState {},
+            zero_size_mapping: zero_size_mapping::ContractMemberState {},
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn contract_state_for_testing() -> ContractState {
+        unsafe_new_contract_state()
+    }
+    
+    use var::InternalContractMemberStateTrait as varContractMemberStateTrait;
+    mod var {
+        use super::HashStateExTrait;
+        use super::WrappedFelt252;
+        use super::ZeroSize;
+        use super::SimpleEnum;
+        use super::EnumWithDefault;
+        use super::BadEnumWithDefault;
+        #[derive(Copy, Drop)]
+        pub struct ContractMemberState {}
+        pub trait InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState) -> starknet::StorageBaseAddress;
+            fn read(self: @ContractMemberState) -> WrappedFelt252;
+            fn write(ref self: ContractMemberState, value: WrappedFelt252);
+        }
+
+        impl InternalContractMemberStateImpl of InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState) -> starknet::StorageBaseAddress {
+                starknet::storage_base_address_const::<0x1c1c14d56e959d57ab94facd0d6c86740ac46c453bf9107bba1c735d7783c71>()
+            }
+            fn read(self: @ContractMemberState) -> WrappedFelt252 {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<WrappedFelt252>::read(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(self),
+                    )
+                )
+            }
+            fn write(ref self: ContractMemberState, value: WrappedFelt252) {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<WrappedFelt252>::write(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(@self),
+                        value,
+                    )
+                )
+            }
+        }
+    }
+    use zero_size::InternalContractMemberStateTrait as zero_sizeContractMemberStateTrait;
+    mod zero_size {
+        use super::HashStateExTrait;
+        use super::WrappedFelt252;
+        use super::ZeroSize;
+        use super::SimpleEnum;
+        use super::EnumWithDefault;
+        use super::BadEnumWithDefault;
+        #[derive(Copy, Drop)]
+        pub struct ContractMemberState {}
+        pub trait InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState) -> starknet::StorageBaseAddress;
+            fn read(self: @ContractMemberState) -> ZeroSize;
+            fn write(ref self: ContractMemberState, value: ZeroSize);
+        }
+
+        impl InternalContractMemberStateImpl of InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState) -> starknet::StorageBaseAddress {
+                starknet::storage_base_address_const::<0x219cc4423c8eab3d10a1f42659ee7172b916579fccdaadceb6efdf1782911b6>()
+            }
+            fn read(self: @ContractMemberState) -> ZeroSize {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<ZeroSize>::read(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(self),
+                    )
+                )
+            }
+            fn write(ref self: ContractMemberState, value: ZeroSize) {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<ZeroSize>::write(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(@self),
+                        value,
+                    )
+                )
+            }
+        }
+    }
+    use mapping::InternalContractMemberStateTrait as mappingContractMemberStateTrait;
+    pub mod mapping {
+        use super::HashStateExTrait;
+        use super::WrappedFelt252;
+        use super::ZeroSize;
+        use super::SimpleEnum;
+        use super::EnumWithDefault;
+        use super::BadEnumWithDefault;
+        #[derive(Copy, Drop)]
+        pub struct ContractMemberState {}
+        pub trait InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState, key: WrappedFelt252) -> starknet::StorageBaseAddress;
+            fn read(self: @ContractMemberState, key: WrappedFelt252) -> WrappedFelt252;
+            fn write(ref self: ContractMemberState, key: WrappedFelt252, value: WrappedFelt252);
+        }
+
+        impl InternalContractMemberStateImpl of InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState, key: WrappedFelt252) -> starknet::StorageBaseAddress {
+                starknet::storage_base_address_from_felt252(
+                    core::hash::LegacyHash::<WrappedFelt252>::hash(0x3043534c8400cf510f61f13082bd823461a59a867690d0148bae4bfcbdb1a4, key))
+            }
+            fn read(self: @ContractMemberState, key: WrappedFelt252) -> WrappedFelt252 {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<WrappedFelt252>::read(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(self, key),
+                    )
+                )
+            }
+            fn write(ref self: ContractMemberState, key: WrappedFelt252, value: WrappedFelt252) {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<WrappedFelt252>::write(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(@self, key),
+                        value,
+                    )
+                )
+            }
+        }
+    }
+    use zero_size_mapping::InternalContractMemberStateTrait as zero_size_mappingContractMemberStateTrait;
+    pub mod zero_size_mapping {
+        use super::HashStateExTrait;
+        use super::WrappedFelt252;
+        use super::ZeroSize;
+        use super::SimpleEnum;
+        use super::EnumWithDefault;
+        use super::BadEnumWithDefault;
+        #[derive(Copy, Drop)]
+        pub struct ContractMemberState {}
+        pub trait InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState, key: ZeroSize) -> starknet::StorageBaseAddress;
+            fn read(self: @ContractMemberState, key: ZeroSize) -> ZeroSize;
+            fn write(ref self: ContractMemberState, key: ZeroSize, value: ZeroSize);
+        }
+
+        impl InternalContractMemberStateImpl of InternalContractMemberStateTrait {
+            fn address(self: @ContractMemberState, key: ZeroSize) -> starknet::StorageBaseAddress {
+                starknet::storage_base_address_from_felt252(
+                    core::hash::LegacyHash::<ZeroSize>::hash(0x18a905aad30d0632877f9b37c338ceaaa98ea40758006e286f2104428beedab, key))
+            }
+            fn read(self: @ContractMemberState, key: ZeroSize) -> ZeroSize {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<ZeroSize>::read(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(self, key),
+                    )
+                )
+            }
+            fn write(ref self: ContractMemberState, key: ZeroSize, value: ZeroSize) {
+                // Only address_domain 0 is currently supported.
+                let address_domain = 0_u32;
+                starknet::SyscallResultTraitImpl::unwrap_syscall(
+                    starknet::Store::<ZeroSize>::write(
+                        address_domain,
+                        InternalContractMemberStateImpl::address(@self, key),
+                        value,
+                    )
+                )
+            }
+        }
+    }
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait
+};
+#[cfg(test)]
+pub const TEST_CLASS_HASH: felt252 = 0x22a6a9ef9e77b4a6859543ea1095bf317324bd00f9420953f068bcafc59b605;
+
+
+pub mod __external {
+}
+pub mod __l1_handler {
+}
+pub mod __constructor {
+}
+    impl ContractStateEventEmitter of starknet::event::EventEmitter<
+        ContractState, Event
+    > {
+        fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(
+            ref self: ContractState, event: S
+        ) {
+            let event: Event = core::traits::Into::into(event);
+            let mut keys = Default::<core::array::Array>::default();
+            let mut data = Default::<core::array::Array>::default();
+            starknet::Event::append_keys_and_data(@event, ref keys, ref data);
+            starknet::SyscallResultTraitImpl::unwrap_syscall(
+                starknet::syscalls::emit_event_syscall(
+                    core::array::ArrayTrait::span(@keys),
+                    core::array::ArrayTrait::span(@data),
+                )
+            )
+        }
+    }
+
+
+
+impls:
+
+impl WrappedFelt252Drop of core::traits::Drop::<WrappedFelt252>;
+impl WrappedFelt252Hash<
+    __State,
+    impl __SHashState: core::hash::HashStateTrait<__State>,
+    +Drop<__State>
+> of core::hash::Hash<WrappedFelt252, __State, __SHashState> {
+    #[inline(always)]
+    fn update_state(state: __State, value: WrappedFelt252) -> __State {
+        let state = core::hash::Hash::update_state(state, value.value);
+        state
+    }
+}
+
+
+starknet_derive:
+
+impl StoreWrappedFelt252 of starknet::Store::<WrappedFelt252> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<WrappedFelt252> {
+        let value = starknet::Store::<felt252>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            WrappedFelt252 {
+                value,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: WrappedFelt252) -> starknet::SyscallResult<()> {
+        starknet::Store::<felt252>::write(address_domain, base, value.value)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<WrappedFelt252> {
+        let value = starknet::Store::<felt252>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            WrappedFelt252 {
+                value,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: WrappedFelt252) -> starknet::SyscallResult<()> {
+        starknet::Store::<felt252>::write_at_offset(address_domain, base, offset, value.value)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<felt252>::size()
+    }
+}
+
+
+impls:
+
+impl ZeroSizeDrop of core::traits::Drop::<ZeroSize>;
+impl ZeroSizeHash<
+    __State,
+    impl __SHashState: core::hash::HashStateTrait<__State>,
+    +Drop<__State>
+> of core::hash::Hash<ZeroSize, __State, __SHashState> {
+    #[inline(always)]
+    fn update_state(state: __State, value: ZeroSize) -> __State {
+        
+        state
+    }
+}
+impl ZeroSizeSerde of core::serde::Serde::<ZeroSize> {
+    fn serialize(self: @ZeroSize, ref output: core::array::Array<felt252>) {
+        
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<ZeroSize> {
+        core::option::Option::Some(ZeroSize {
+            
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreZeroSize of starknet::Store::<ZeroSize> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<ZeroSize> {
+        
+        starknet::SyscallResult::Ok(
+            ZeroSize {
+                
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: ZeroSize) -> starknet::SyscallResult<()> {
+        
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<ZeroSize> {
+        
+        starknet::SyscallResult::Ok(
+            ZeroSize {
+                
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: ZeroSize) -> starknet::SyscallResult<()> {
+        
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        0
+    }
+}
+
+
+impls:
+
+impl SimpleEnumDrop of core::traits::Drop::<SimpleEnum>;
+impl SimpleEnumSerde of core::serde::Serde::<SimpleEnum> {
+    fn serialize(self: @SimpleEnum, ref output: core::array::Array<felt252>) {
+        match self {
+            SimpleEnum::A(x) => { core::serde::Serde::serialize(@0, ref output); core::serde::Serde::serialize(x, ref output); },
+            SimpleEnum::B(x) => { core::serde::Serde::serialize(@1, ref output); core::serde::Serde::serialize(x, ref output); },
+        }
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<SimpleEnum> {
+        let idx: felt252 = core::serde::Serde::deserialize(ref serialized)?;
+        core::option::Option::Some(
+            if idx == 0 { SimpleEnum::A(core::serde::Serde::deserialize(ref serialized)?) }
+            else if idx == 1 { SimpleEnum::B(core::serde::Serde::deserialize(ref serialized)?) }
+            else { return core::option::Option::None; }
+        )
+    }
+}
+
+
+starknet_derive:
+
+impl StoreSimpleEnum of starknet::Store::<SimpleEnum> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<SimpleEnum> {
+        let idx = starknet::Store::<felt252>::read(address_domain, base)?;
+        if idx == 1 {
+            starknet::SyscallResult::Ok(
+                SimpleEnum::A(
+                    starknet::Store::read_at_offset(address_domain, base, 1_u8)?
+                )
+            )
+        }
+        else if idx == 2 {
+            starknet::SyscallResult::Ok(
+                SimpleEnum::B(
+                    starknet::Store::read_at_offset(address_domain, base, 1_u8)?
+                )
+            )
+        }
+        else {
+            starknet::SyscallResult::Err(array!['Unknown enum indicator:', idx])
+        }
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: SimpleEnum) -> starknet::SyscallResult<()> {
+        match value {
+            SimpleEnum::A(x) => {
+                starknet::Store::write(address_domain, base, 1)?;
+                starknet::Store::write_at_offset(address_domain, base, 1_u8, x)?;
+            },
+            SimpleEnum::B(x) => {
+                starknet::Store::write(address_domain, base, 2)?;
+                starknet::Store::write_at_offset(address_domain, base, 1_u8, x)?;
+            }
+        };
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<SimpleEnum> {
+        let idx = starknet::Store::<felt252>::read_at_offset(address_domain, base, offset)?;
+        if idx == 1 {
+            starknet::SyscallResult::Ok(
+                SimpleEnum::A(
+                    starknet::Store::read_at_offset(address_domain, base, offset + 1_u8)?
+                )
+            )
+        }
+        else if idx == 2 {
+            starknet::SyscallResult::Ok(
+                SimpleEnum::B(
+                    starknet::Store::read_at_offset(address_domain, base, offset + 1_u8)?
+                )
+            )
+        }
+        else {
+            starknet::SyscallResult::Err(array!['Unknown enum indicator:', idx])
+        }
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: SimpleEnum) -> starknet::SyscallResult<()> {
+        match value {
+            SimpleEnum::A(x) => {
+                starknet::Store::write_at_offset(address_domain, base, offset, 1)?;
+                starknet::Store::write_at_offset(address_domain, base, offset + 1_u8, x)?;
+            },
+            SimpleEnum::B(x) => {
+                starknet::Store::write_at_offset(address_domain, base, offset, 2)?;
+                starknet::Store::write_at_offset(address_domain, base, offset + 1_u8, x)?;
+            }
+        };
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        1_u8 + core::cmp::max(starknet::Store::<u16>::size(), starknet::Store::<u8>::size())
+    }
+}
+
+
+impls:
+
+impl EnumWithDefaultDrop of core::traits::Drop::<EnumWithDefault>;
+impl EnumWithDefaultSerde of core::serde::Serde::<EnumWithDefault> {
+    fn serialize(self: @EnumWithDefault, ref output: core::array::Array<felt252>) {
+        match self {
+            EnumWithDefault::A(x) => { core::serde::Serde::serialize(@0, ref output); core::serde::Serde::serialize(x, ref output); },
+            EnumWithDefault::B(x) => { core::serde::Serde::serialize(@1, ref output); core::serde::Serde::serialize(x, ref output); },
+            EnumWithDefault::C(x) => { core::serde::Serde::serialize(@2, ref output); core::serde::Serde::serialize(x, ref output); },
+        }
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<EnumWithDefault> {
+        let idx: felt252 = core::serde::Serde::deserialize(ref serialized)?;
+        core::option::Option::Some(
+            if idx == 0 { EnumWithDefault::A(core::serde::Serde::deserialize(ref serialized)?) }
+            else if idx == 1 { EnumWithDefault::B(core::serde::Serde::deserialize(ref serialized)?) }
+            else if idx == 2 { EnumWithDefault::C(core::serde::Serde::deserialize(ref serialized)?) }
+            else { return core::option::Option::None; }
+        )
+    }
+}
+
+
+starknet_derive:
+
+impl StoreEnumWithDefault of starknet::Store::<EnumWithDefault> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<EnumWithDefault> {
+        let idx = starknet::Store::<felt252>::read(address_domain, base)?;
+        if idx == 1 {
+            starknet::SyscallResult::Ok(
+                EnumWithDefault::A(
+                    starknet::Store::read_at_offset(address_domain, base, 1_u8)?
+                )
+            )
+        }
+        else if idx == 0 {
+            starknet::SyscallResult::Ok(
+                EnumWithDefault::B(
+                    starknet::Store::read_at_offset(address_domain, base, 1_u8)?
+                )
+            )
+        }
+        else if idx == 2 {
+            starknet::SyscallResult::Ok(
+                EnumWithDefault::C(
+                    starknet::Store::read_at_offset(address_domain, base, 1_u8)?
+                )
+            )
+        }
+        else {
+            starknet::SyscallResult::Err(array!['Unknown enum indicator:', idx])
+        }
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: EnumWithDefault) -> starknet::SyscallResult<()> {
+        match value {
+            EnumWithDefault::A(x) => {
+                starknet::Store::write(address_domain, base, 1)?;
+                starknet::Store::write_at_offset(address_domain, base, 1_u8, x)?;
+            },
+            EnumWithDefault::B(x) => {
+                starknet::Store::write(address_domain, base, 0)?;
+                starknet::Store::write_at_offset(address_domain, base, 1_u8, x)?;
+            },
+            EnumWithDefault::C(x) => {
+                starknet::Store::write(address_domain, base, 2)?;
+                starknet::Store::write_at_offset(address_domain, base, 1_u8, x)?;
+            }
+        };
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<EnumWithDefault> {
+        let idx = starknet::Store::<felt252>::read_at_offset(address_domain, base, offset)?;
+        if idx == 1 {
+            starknet::SyscallResult::Ok(
+                EnumWithDefault::A(
+                    starknet::Store::read_at_offset(address_domain, base, offset + 1_u8)?
+                )
+            )
+        }
+        else if idx == 0 {
+            starknet::SyscallResult::Ok(
+                EnumWithDefault::B(
+                    starknet::Store::read_at_offset(address_domain, base, offset + 1_u8)?
+                )
+            )
+        }
+        else if idx == 2 {
+            starknet::SyscallResult::Ok(
+                EnumWithDefault::C(
+                    starknet::Store::read_at_offset(address_domain, base, offset + 1_u8)?
+                )
+            )
+        }
+        else {
+            starknet::SyscallResult::Err(array!['Unknown enum indicator:', idx])
+        }
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: EnumWithDefault) -> starknet::SyscallResult<()> {
+        match value {
+            EnumWithDefault::A(x) => {
+                starknet::Store::write_at_offset(address_domain, base, offset, 1)?;
+                starknet::Store::write_at_offset(address_domain, base, offset + 1_u8, x)?;
+            },
+            EnumWithDefault::B(x) => {
+                starknet::Store::write_at_offset(address_domain, base, offset, 0)?;
+                starknet::Store::write_at_offset(address_domain, base, offset + 1_u8, x)?;
+            },
+            EnumWithDefault::C(x) => {
+                starknet::Store::write_at_offset(address_domain, base, offset, 2)?;
+                starknet::Store::write_at_offset(address_domain, base, offset + 1_u8, x)?;
+            }
+        };
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        1_u8 + core::cmp::max(starknet::Store::<u32>::size(), core::cmp::max(starknet::Store::<u16>::size(), starknet::Store::<u8>::size()))
+    }
+}
+
+
+impls:
+
+impl BadEnumWithDefaultDrop of core::traits::Drop::<BadEnumWithDefault>;
+impl BadEnumWithDefaultSerde of core::serde::Serde::<BadEnumWithDefault> {
+    fn serialize(self: @BadEnumWithDefault, ref output: core::array::Array<felt252>) {
+        match self {
+            BadEnumWithDefault::A(x) => { core::serde::Serde::serialize(@0, ref output); core::serde::Serde::serialize(x, ref output); },
+            BadEnumWithDefault::B(x) => { core::serde::Serde::serialize(@1, ref output); core::serde::Serde::serialize(x, ref output); },
+            BadEnumWithDefault::C(x) => { core::serde::Serde::serialize(@2, ref output); core::serde::Serde::serialize(x, ref output); },
+        }
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<BadEnumWithDefault> {
+        let idx: felt252 = core::serde::Serde::deserialize(ref serialized)?;
+        core::option::Option::Some(
+            if idx == 0 { BadEnumWithDefault::A(core::serde::Serde::deserialize(ref serialized)?) }
+            else if idx == 1 { BadEnumWithDefault::B(core::serde::Serde::deserialize(ref serialized)?) }
+            else if idx == 2 { BadEnumWithDefault::C(core::serde::Serde::deserialize(ref serialized)?) }
+            else { return core::option::Option::None; }
+        )
+    }
+}
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: Multiple variants annotated with `#[default]`
+ --> lib.cairo:38:9
+        #[default]
+        ^********^

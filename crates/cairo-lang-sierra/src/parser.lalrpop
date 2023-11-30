@@ -1,0 +1,219 @@
+// Simple parser for sierra.
+// Currently only used for testing.
+
+use crate::ids::*;
+use crate::program::*;
+use crate::pre_statement::{StatementId, PreStatement, finalize_prestatements};
+use num_bigint::BigInt;
+
+grammar;
+
+pub Program: Program = {
+    <type_declarations:TypeDeclaration*>
+    <libfunc_declarations:LibfuncDeclaration*>
+    <statements:PreStatement*>
+    <funcs:Function*>
+    => Program{type_declarations, libfunc_declarations, statements: finalize_prestatements(statements), funcs},
+}
+
+TypeDeclaration: TypeDeclaration = {
+    "type" <id:ConcreteTypeId> "=" 
+        <long_id:ConcreteTypeLongId> <declared_type_info:DeclaredTypeInfo> ";" =>
+    {
+        TypeDeclaration{id, long_id, declared_type_info}
+    },
+}
+
+DeclaredTypeInfo: Option<DeclaredTypeInfo> = {
+    "["
+        "storable:" <storable:Bool> ","
+        "drop:" <droppable:Bool> ","
+        "dup:" <duplicatable:Bool> ","
+        "zero_sized:" <zero_sized:Bool>
+    "]"
+    => Some(DeclaredTypeInfo {
+        storable,
+        droppable,
+        duplicatable,
+        zero_sized,
+    }),
+    => None,
+}
+
+pub ConcreteTypeLongId: ConcreteTypeLongId = {
+    <generic_id:GenericTypeId> "<" <generic_args:GenericArgs> ">"
+    => ConcreteTypeLongId{generic_id, generic_args},
+    <generic_id:GenericTypeId> => ConcreteTypeLongId{generic_id, generic_args: vec![]},
+}
+
+LibfuncDeclaration: LibfuncDeclaration = {
+    "libfunc" <id:ConcreteLibfuncId> "=" <long_id:ConcreteLibfuncLongId> ";"
+    => LibfuncDeclaration{id, long_id},
+}
+
+pub ConcreteLibfuncLongId: ConcreteLibfuncLongId = {
+    <generic_id:GenericLibfuncId> "<" <generic_args:GenericArgs> ">"
+    => ConcreteLibfuncLongId{generic_id, generic_args},
+    <generic_id:GenericLibfuncId> => ConcreteLibfuncLongId{generic_id, generic_args: vec![]},
+}
+
+Function: Function = {
+    <id:FunctionId> "@" <entry:StatementIdx>
+    "(" <params: Params> ")" "->" "(" <ret_types: ConcreteTypeIds> ")" ";"
+    => Function::new(id, params, ret_types, entry),
+}
+
+Param: Param = {
+    <id:VarId> ":" <ty:ConcreteTypeId> => Param{id, ty},
+}
+Params = Comma<Param>;
+
+GenericLibfuncId: GenericLibfuncId = {
+    <id:PathLabel> => GenericLibfuncId::from_string(id),
+}
+
+ConcreteLibfuncId: ConcreteLibfuncId = {
+    <id:ConcreteLabel> => ConcreteLibfuncId::from_string(id),
+    "[" <id:UnsignedInt> "]" => ConcreteLibfuncId::new(id),
+}
+
+FunctionId: FunctionId = {
+    <id:ConcreteLabel> => FunctionId::from_string(id),
+    <id:ConcreteLabel> "[" <extra:BasicLabel> "]"  =>
+        FunctionId::from_string(format!("{id}[{extra}]")),
+    "[" <id:UnsignedInt> "]" => FunctionId::new(id),
+}
+
+UserTypeId: UserTypeId = {
+    <id:ConcreteLabel> => UserTypeId::from_string(id),
+    "[" <id:BigInt> "]" => UserTypeId { id: id.try_into().unwrap(), debug_name: None },
+}
+
+VarId: VarId = {
+    <id:BasicLabel> => VarId::from_string(id),
+    "[" <id:UnsignedInt> "]" => VarId::new(id),
+}
+VarIds = Comma<VarId>;
+
+GenericTypeId: GenericTypeId = {
+    <id:PathLabel> => GenericTypeId::from_string(id),
+}
+
+ConcreteTypeId: ConcreteTypeId = {
+    <id:ConcreteLabel> => ConcreteTypeId::from_string(id),
+    "@" <id:ConcreteLabel> => ConcreteTypeId::from_string(format!("@{id}")),
+    "[" <id:UnsignedInt> "]" => ConcreteTypeId::new(id),
+}
+ConcreteTypeIds = Comma<ConcreteTypeId>;
+
+StatementIdx: StatementIdx = {
+     <id:UnsignedInt> => StatementIdx(id as usize),
+}
+
+GenericArg: GenericArg = {
+    ConcreteTypeId => GenericArg::Type(<>),
+    <v:BigInt> => GenericArg::Value(v),
+    "user@" <id:FunctionId> => GenericArg::UserFunc(id),
+    "ut@" <id:UserTypeId> => GenericArg::UserType(id),
+    "lib@" <id:ConcreteLibfuncId> => GenericArg::Libfunc(id),
+}
+GenericArgs = Comma<GenericArg>;
+
+PreStatement: PreStatement = {
+    <label: BasicLabel> ":" => PreStatement::Label(label),
+    <statement: Statement> => PreStatement::Statement(statement),
+}
+
+Statement: GenStatement<StatementId> = {
+    <invocation:Invocation> => GenStatement::Invocation(invocation),
+    "return" "(" <args:VarIds> ")" ";" => GenStatement::Return(args),
+}
+
+Invocation: GenInvocation<StatementId> = {
+    <libfunc_id:ConcreteLibfuncId> "(" <args:VarIds> ")" "->" "(" <results:VarIds> ")" ";" =>
+        GenInvocation {
+            libfunc_id,
+            args,
+            branches: vec![GenBranchInfo { target: GenBranchTarget::Fallthrough , results }]
+        },
+    <libfunc_id:ConcreteLibfuncId> "(" <args:VarIds> ")" "{" <branches:BranchInfo*> "}" ";" =>
+        GenInvocation {libfunc_id, args, branches },
+}
+
+// Generates a vector of Ts with or without a trailing comma.
+Comma<T>: Vec<T> = {
+    // If we have an additional element we add it to the vector, otherwise
+    // returning the current vector.
+    <mut v:(<T> ",")*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            v.push(e);
+            v
+        }
+    }
+};
+
+BranchInfo: GenBranchInfo<StatementId> = {
+    <target: BranchTarget> "(" <results:VarIds> ")" =>
+        GenBranchInfo { target, results },
+}
+
+BranchTarget: GenBranchTarget<StatementId> = {
+     "fallthrough" => GenBranchTarget::Fallthrough,
+     <id:StatementIdx> => GenBranchTarget::Statement(StatementId::Idx(id)),
+     <label:BasicLabel> => GenBranchTarget::Statement(StatementId::Label(label)),
+}
+
+BasicLabel: String = {
+    r"[a-zA-Z_][a-zA-Z_0-9]*" => <>.to_string(),
+}
+
+// `BasicLabel`s joined by "::".
+PathLabel: String = {
+    BasicLabel => <>,
+    <path_label:PathLabel> "::" <basic_label:BasicLabel> => format!("{path_label}::{basic_label}"),
+}
+
+// `GenericArg`s joined by ",".
+GenericArgsString: String = {
+    GenericArg => <>.to_string(),
+    <head:GenericArgsString> "," <tail:GenericArg> => format!("{head}, {tail}"),
+}
+
+// Label that can also include generic arguments.
+ConcreteLabel: String = {
+    BasicLabel => <>,
+    "(" <generic_args:GenericArgsString> ")" => format!("({generic_args})"),
+    "(" <generic_args:GenericArgsString> "," ")" => format!("({generic_args})"),
+    "(" ")" => format!("()"),
+    <base:ConcreteLabel> "::" <next:BasicLabel> => format!("{base}::{next}"),
+    <base:ConcreteLabel> "::" "<" <generic_args:GenericArgsString> ">" => format!("{base}::<{generic_args}>"),
+    <base:ConcreteLabel> "<" <generic_args:GenericArgsString> ">" => format!("{base}<{generic_args}>"),
+}
+
+BigInt: BigInt = {
+    r"-?[1-9][0-9]*|0" => <>.parse().unwrap(),
+}
+
+Bool: bool = {
+    "false" => false,
+    "true" => true,
+}
+
+UnsignedInt: u64 = {
+    BigInt => u64::try_from(<>).unwrap(),
+}
+
+SignedInt: i64 = {
+    BigInt => i64::try_from(<>).unwrap(),
+}
+
+I16: i16 = {
+    BigInt => i16::try_from(<>).unwrap(),
+}
+
+match {
+    r"[[:space:]]*" => {},
+    r"//[^\n\r]*[\n\r]" => {},
+    _,
+}

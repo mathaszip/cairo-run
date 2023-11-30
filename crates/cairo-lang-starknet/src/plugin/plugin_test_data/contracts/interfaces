@@ -1,0 +1,1033 @@
+//! > Expansion of a contract with a component with conflicting interfaces.
+
+//! > test_runner_name
+ExpandContractTestRunner(expect_diagnostics: true)
+
+//! > cairo_code
+>>> file: test_data/interfaces.cairo
+
+//! > generated_cairo_code
+lib.cairo:
+
+#[starknet::interface]
+trait Interface1<TContractState> {
+    fn foo(ref self: TContractState);
+}
+
+#[starknet::interface]
+trait Interface2<TContractState> {
+    fn foo(ref self: TContractState);
+}
+
+#[starknet::component]
+mod comp {
+    #[storage]
+    struct Storage {}
+
+    #[embeddable_as(I1I1)]
+    impl Interface1_Implementation1<
+        TContractState, impl X: HasComponent<TContractState>
+    > of super::Interface1<ComponentState<TContractState>> {
+        fn foo(ref self: ComponentState<TContractState>) {}
+    }
+
+    #[embeddable_as(I1I2)]
+    impl Interface1_Implementation2<
+        TContractState, impl X: HasComponent<TContractState>
+    > of super::Interface1<ComponentState<TContractState>> {
+        fn foo(ref self: ComponentState<TContractState>) {}
+    }
+
+    #[embeddable_as(I2I)]
+    impl Interface2_Implementation<
+        TContractState, impl X: HasComponent<TContractState>
+    > of super::Interface2<ComponentState<TContractState>> {
+        fn foo(ref self: ComponentState<TContractState>) {}
+    }
+}
+
+#[starknet::contract]
+mod counter_contract {
+    component!(path: super::comp, storage: comp_storage, event: CompEvent);
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        comp_storage: super::comp::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        CompEvent: super::comp::Event
+    }
+
+    #[abi(embed_v0)]
+    impl EmbeddedI1I1 = super::comp::I1I1<ContractState>;
+    #[abi(embed_v0)]
+    impl EmbeddedI1I2 = super::comp::I1I2<ContractState>;
+    #[abi(embed_v0)]
+    impl EmbeddedI2I = super::comp::I2I<ContractState>;
+
+    #[external(v0)]
+    fn foo(self: @ContractState) {}
+}
+
+
+Interface1DispatcherTrait:
+
+trait Interface1DispatcherTrait<T> {
+    fn foo(self: T);
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface1Dispatcher {
+    pub contract_address: starknet::ContractAddress,
+}
+
+impl Interface1DispatcherImpl of Interface1DispatcherTrait<Interface1Dispatcher> {
+    fn foo(self: Interface1Dispatcher) {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        ()
+    }
+
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface1LibraryDispatcher {
+    pub class_hash: starknet::ClassHash,
+}
+
+impl Interface1LibraryDispatcherImpl of Interface1DispatcherTrait<Interface1LibraryDispatcher> {
+    fn foo(self: Interface1LibraryDispatcher) {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        ()
+    }
+
+}
+
+trait Interface1SafeDispatcherTrait<T> {
+    fn foo(self: T) -> starknet::SyscallResult<()>;
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface1SafeLibraryDispatcher {
+    pub class_hash: starknet::ClassHash,
+}
+
+impl Interface1SafeLibraryDispatcherImpl of Interface1SafeDispatcherTrait<Interface1SafeLibraryDispatcher> {
+    fn foo(self: Interface1SafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(())
+    }
+
+}
+
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface1SafeDispatcher {
+    pub contract_address: starknet::ContractAddress,
+}
+
+impl Interface1SafeDispatcherImpl of Interface1SafeDispatcherTrait<Interface1SafeDispatcher> {
+    fn foo(self: Interface1SafeDispatcher) -> starknet::SyscallResult<()> {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(())
+    }
+
+}
+
+
+Interface2DispatcherTrait:
+
+trait Interface2DispatcherTrait<T> {
+    fn foo(self: T);
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface2Dispatcher {
+    pub contract_address: starknet::ContractAddress,
+}
+
+impl Interface2DispatcherImpl of Interface2DispatcherTrait<Interface2Dispatcher> {
+    fn foo(self: Interface2Dispatcher) {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        ()
+    }
+
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface2LibraryDispatcher {
+    pub class_hash: starknet::ClassHash,
+}
+
+impl Interface2LibraryDispatcherImpl of Interface2DispatcherTrait<Interface2LibraryDispatcher> {
+    fn foo(self: Interface2LibraryDispatcher) {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = starknet::SyscallResultTrait::unwrap_syscall(__dispatcher_return_data__);
+        ()
+    }
+
+}
+
+trait Interface2SafeDispatcherTrait<T> {
+    fn foo(self: T) -> starknet::SyscallResult<()>;
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface2SafeLibraryDispatcher {
+    pub class_hash: starknet::ClassHash,
+}
+
+impl Interface2SafeLibraryDispatcherImpl of Interface2SafeDispatcherTrait<Interface2SafeLibraryDispatcher> {
+    fn foo(self: Interface2SafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::syscalls::library_call_syscall(
+            self.class_hash,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(())
+    }
+
+}
+
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct Interface2SafeDispatcher {
+    pub contract_address: starknet::ContractAddress,
+}
+
+impl Interface2SafeDispatcherImpl of Interface2SafeDispatcherTrait<Interface2SafeDispatcher> {
+    fn foo(self: Interface2SafeDispatcher) -> starknet::SyscallResult<()> {
+        let mut __calldata__ = core::traits::Default::default();
+
+        let mut __dispatcher_return_data__ = starknet::call_contract_syscall(
+            self.contract_address,
+            selector!("foo"),
+            core::array::ArrayTrait::span(@__calldata__),
+        );
+        let mut __dispatcher_return_data__ = __dispatcher_return_data__?;
+        Result::Ok(())
+    }
+
+}
+
+
+impls:
+
+impl Interface1DispatcherCopy of core::traits::Copy::<Interface1Dispatcher>;
+impl Interface1DispatcherDrop of core::traits::Drop::<Interface1Dispatcher>;
+impl Interface1DispatcherSerde of core::serde::Serde::<Interface1Dispatcher> {
+    fn serialize(self: @Interface1Dispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.contract_address, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface1Dispatcher> {
+        core::option::Option::Some(Interface1Dispatcher {
+            contract_address: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface1Dispatcher of starknet::Store::<Interface1Dispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface1Dispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface1Dispatcher {
+                contract_address,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface1Dispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write(address_domain, base, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface1Dispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface1Dispatcher {
+                contract_address,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface1Dispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write_at_offset(address_domain, base, offset, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ContractAddress>::size()
+    }
+}
+
+
+impls:
+
+impl Interface1LibraryDispatcherCopy of core::traits::Copy::<Interface1LibraryDispatcher>;
+impl Interface1LibraryDispatcherDrop of core::traits::Drop::<Interface1LibraryDispatcher>;
+impl Interface1LibraryDispatcherSerde of core::serde::Serde::<Interface1LibraryDispatcher> {
+    fn serialize(self: @Interface1LibraryDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.class_hash, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface1LibraryDispatcher> {
+        core::option::Option::Some(Interface1LibraryDispatcher {
+            class_hash: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface1LibraryDispatcher of starknet::Store::<Interface1LibraryDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface1LibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface1LibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface1LibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write(address_domain, base, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface1LibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface1LibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface1LibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write_at_offset(address_domain, base, offset, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ClassHash>::size()
+    }
+}
+
+
+impls:
+
+impl Interface1SafeLibraryDispatcherCopy of core::traits::Copy::<Interface1SafeLibraryDispatcher>;
+impl Interface1SafeLibraryDispatcherDrop of core::traits::Drop::<Interface1SafeLibraryDispatcher>;
+impl Interface1SafeLibraryDispatcherSerde of core::serde::Serde::<Interface1SafeLibraryDispatcher> {
+    fn serialize(self: @Interface1SafeLibraryDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.class_hash, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface1SafeLibraryDispatcher> {
+        core::option::Option::Some(Interface1SafeLibraryDispatcher {
+            class_hash: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface1SafeLibraryDispatcher of starknet::Store::<Interface1SafeLibraryDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface1SafeLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface1SafeLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface1SafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write(address_domain, base, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface1SafeLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface1SafeLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface1SafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write_at_offset(address_domain, base, offset, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ClassHash>::size()
+    }
+}
+
+
+impls:
+
+impl Interface1SafeDispatcherCopy of core::traits::Copy::<Interface1SafeDispatcher>;
+impl Interface1SafeDispatcherDrop of core::traits::Drop::<Interface1SafeDispatcher>;
+impl Interface1SafeDispatcherSerde of core::serde::Serde::<Interface1SafeDispatcher> {
+    fn serialize(self: @Interface1SafeDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.contract_address, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface1SafeDispatcher> {
+        core::option::Option::Some(Interface1SafeDispatcher {
+            contract_address: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface1SafeDispatcher of starknet::Store::<Interface1SafeDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface1SafeDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface1SafeDispatcher {
+                contract_address,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface1SafeDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write(address_domain, base, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface1SafeDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface1SafeDispatcher {
+                contract_address,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface1SafeDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write_at_offset(address_domain, base, offset, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ContractAddress>::size()
+    }
+}
+
+
+impls:
+
+impl Interface2DispatcherCopy of core::traits::Copy::<Interface2Dispatcher>;
+impl Interface2DispatcherDrop of core::traits::Drop::<Interface2Dispatcher>;
+impl Interface2DispatcherSerde of core::serde::Serde::<Interface2Dispatcher> {
+    fn serialize(self: @Interface2Dispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.contract_address, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface2Dispatcher> {
+        core::option::Option::Some(Interface2Dispatcher {
+            contract_address: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface2Dispatcher of starknet::Store::<Interface2Dispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface2Dispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface2Dispatcher {
+                contract_address,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface2Dispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write(address_domain, base, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface2Dispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface2Dispatcher {
+                contract_address,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface2Dispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write_at_offset(address_domain, base, offset, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ContractAddress>::size()
+    }
+}
+
+
+impls:
+
+impl Interface2LibraryDispatcherCopy of core::traits::Copy::<Interface2LibraryDispatcher>;
+impl Interface2LibraryDispatcherDrop of core::traits::Drop::<Interface2LibraryDispatcher>;
+impl Interface2LibraryDispatcherSerde of core::serde::Serde::<Interface2LibraryDispatcher> {
+    fn serialize(self: @Interface2LibraryDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.class_hash, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface2LibraryDispatcher> {
+        core::option::Option::Some(Interface2LibraryDispatcher {
+            class_hash: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface2LibraryDispatcher of starknet::Store::<Interface2LibraryDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface2LibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface2LibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface2LibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write(address_domain, base, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface2LibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface2LibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface2LibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write_at_offset(address_domain, base, offset, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ClassHash>::size()
+    }
+}
+
+
+impls:
+
+impl Interface2SafeLibraryDispatcherCopy of core::traits::Copy::<Interface2SafeLibraryDispatcher>;
+impl Interface2SafeLibraryDispatcherDrop of core::traits::Drop::<Interface2SafeLibraryDispatcher>;
+impl Interface2SafeLibraryDispatcherSerde of core::serde::Serde::<Interface2SafeLibraryDispatcher> {
+    fn serialize(self: @Interface2SafeLibraryDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.class_hash, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface2SafeLibraryDispatcher> {
+        core::option::Option::Some(Interface2SafeLibraryDispatcher {
+            class_hash: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface2SafeLibraryDispatcher of starknet::Store::<Interface2SafeLibraryDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface2SafeLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface2SafeLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface2SafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write(address_domain, base, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface2SafeLibraryDispatcher> {
+        let class_hash = starknet::Store::<starknet::ClassHash>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface2SafeLibraryDispatcher {
+                class_hash,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface2SafeLibraryDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ClassHash>::write_at_offset(address_domain, base, offset, value.class_hash)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ClassHash>::size()
+    }
+}
+
+
+impls:
+
+impl Interface2SafeDispatcherCopy of core::traits::Copy::<Interface2SafeDispatcher>;
+impl Interface2SafeDispatcherDrop of core::traits::Drop::<Interface2SafeDispatcher>;
+impl Interface2SafeDispatcherSerde of core::serde::Serde::<Interface2SafeDispatcher> {
+    fn serialize(self: @Interface2SafeDispatcher, ref output: core::array::Array<felt252>) {
+        core::serde::Serde::serialize(self.contract_address, ref output)
+    }
+    fn deserialize(ref serialized: core::array::Span<felt252>) -> core::option::Option<Interface2SafeDispatcher> {
+        core::option::Option::Some(Interface2SafeDispatcher {
+            contract_address: core::serde::Serde::deserialize(ref serialized)?,
+        })
+    }
+}
+
+
+starknet_derive:
+
+impl StoreInterface2SafeDispatcher of starknet::Store::<Interface2SafeDispatcher> {
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> starknet::SyscallResult<Interface2SafeDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read(address_domain, base)?;
+        starknet::SyscallResult::Ok(
+            Interface2SafeDispatcher {
+                contract_address,
+            }
+        )
+    }
+    fn write(address_domain: u32, base: starknet::StorageBaseAddress, value: Interface2SafeDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write(address_domain, base, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    fn read_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8) -> starknet::SyscallResult<Interface2SafeDispatcher> {
+        let contract_address = starknet::Store::<starknet::ContractAddress>::read_at_offset(address_domain, base, offset)?;
+        starknet::SyscallResult::Ok(
+            Interface2SafeDispatcher {
+                contract_address,
+            }
+        )
+    }
+    #[inline(always)]
+    fn write_at_offset(address_domain: u32, base: starknet::StorageBaseAddress, offset: u8, value: Interface2SafeDispatcher) -> starknet::SyscallResult<()> {
+        starknet::Store::<starknet::ContractAddress>::write_at_offset(address_domain, base, offset, value.contract_address)?;
+        starknet::SyscallResult::Ok(())
+    }
+    #[inline(always)]
+    fn size() -> u8 {
+        starknet::Store::<starknet::ContractAddress>::size()
+    }
+}
+
+
+component:
+
+#[event]
+#[derive(Drop, starknet::Event)]
+pub enum Event {}
+
+
+    pub struct ComponentState<TContractState> {
+    }
+    impl ComponentStateDrop<TContractState> of Drop<ComponentState<TContractState>> {}
+    #[inline(always)]
+    pub fn unsafe_new_component_state<TContractState>() -> ComponentState<TContractState> {
+        ComponentState::<TContractState> {
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn component_state_for_testing<TContractState>() -> ComponentState<TContractState> {
+        unsafe_new_component_state::<TContractState>()
+    }
+    
+
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait,
+};
+pub trait HasComponent<TContractState> {
+    fn get_component(self: @TContractState) -> @ComponentState<TContractState>;
+    fn get_component_mut(ref self: TContractState) -> ComponentState<TContractState>;
+    fn get_contract(self: @ComponentState<TContractState>) -> @TContractState;
+    fn get_contract_mut(ref self: ComponentState<TContractState>) -> TContractState;
+    fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(ref self: ComponentState<TContractState>, event: S);
+}
+
+#[starknet::embeddable]
+pub impl I1I1<
+            TContractState, impl X: HasComponent<TContractState>
+, impl TContractStateDrop: Drop<TContractState>
+> of super::Interface1<TContractState> {
+    
+    fn foo(ref self: TContractState) {
+        let mut component = HasComponent::get_component_mut(ref self);
+        Interface1_Implementation1::foo(ref component)
+    }
+}#[starknet::embeddable]
+pub impl I1I2<
+            TContractState, impl X: HasComponent<TContractState>
+, impl TContractStateDrop: Drop<TContractState>
+> of super::Interface1<TContractState> {
+    
+    fn foo(ref self: TContractState) {
+        let mut component = HasComponent::get_component_mut(ref self);
+        Interface1_Implementation2::foo(ref component)
+    }
+}#[starknet::embeddable]
+pub impl I2I<
+            TContractState, impl X: HasComponent<TContractState>
+, impl TContractStateDrop: Drop<TContractState>
+> of super::Interface2<TContractState> {
+    
+    fn foo(ref self: TContractState) {
+        let mut component = HasComponent::get_component_mut(ref self);
+        Interface2_Implementation::foo(ref component)
+    }
+}
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        Option::None
+    }
+}
+
+
+
+embeddable:
+
+pub trait UnsafeNewContractStateTraitForI1I1<
+    TContractState
+> {
+    fn unsafe_new_contract_state() -> TContractState;
+}
+
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__I1I1__foo<TContractState, impl X: HasComponent<TContractState>
+, impl TContractStateDrop: Drop<TContractState>, impl UnsafeNewContractState: UnsafeNewContractStateTraitForI1I1<TContractState>>(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = UnsafeNewContractState::unsafe_new_contract_state();
+    I1I1::<TContractState, X, TContractStateDrop>::foo(ref contract_state, );
+    let mut arr = core::array::array_new();
+    // References.
+    // Result.
+    core::array::ArrayTrait::span(@arr)
+}
+
+
+
+pub mod __external_I1I1 {
+    pub use super::__wrapper__I1I1__foo as foo;
+}
+
+pub mod __l1_handler_I1I1 {
+}
+
+pub mod __constructor_I1I1 {
+}
+
+
+embeddable:
+
+pub trait UnsafeNewContractStateTraitForI1I2<
+    TContractState
+> {
+    fn unsafe_new_contract_state() -> TContractState;
+}
+
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__I1I2__foo<TContractState, impl X: HasComponent<TContractState>
+, impl TContractStateDrop: Drop<TContractState>, impl UnsafeNewContractState: UnsafeNewContractStateTraitForI1I2<TContractState>>(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = UnsafeNewContractState::unsafe_new_contract_state();
+    I1I2::<TContractState, X, TContractStateDrop>::foo(ref contract_state, );
+    let mut arr = core::array::array_new();
+    // References.
+    // Result.
+    core::array::ArrayTrait::span(@arr)
+}
+
+
+
+pub mod __external_I1I2 {
+    pub use super::__wrapper__I1I2__foo as foo;
+}
+
+pub mod __l1_handler_I1I2 {
+}
+
+pub mod __constructor_I1I2 {
+}
+
+
+embeddable:
+
+pub trait UnsafeNewContractStateTraitForI2I<
+    TContractState
+> {
+    fn unsafe_new_contract_state() -> TContractState;
+}
+
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__I2I__foo<TContractState, impl X: HasComponent<TContractState>
+, impl TContractStateDrop: Drop<TContractState>, impl UnsafeNewContractState: UnsafeNewContractStateTraitForI2I<TContractState>>(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = UnsafeNewContractState::unsafe_new_contract_state();
+    I2I::<TContractState, X, TContractStateDrop>::foo(ref contract_state, );
+    let mut arr = core::array::array_new();
+    // References.
+    // Result.
+    core::array::ArrayTrait::span(@arr)
+}
+
+
+
+pub mod __external_I2I {
+    pub use super::__wrapper__I2I__foo as foo;
+}
+
+pub mod __l1_handler_I2I {
+}
+
+pub mod __constructor_I2I {
+}
+
+
+contract:
+
+
+
+    pub struct ContractState {
+        pub comp_storage: super::comp::ComponentState<ContractState>,
+    }
+    impl ContractStateDrop of Drop<ContractState> {}
+    #[inline(always)]
+    pub fn unsafe_new_contract_state() -> ContractState {
+        ContractState {
+            comp_storage: super::comp::unsafe_new_component_state::<ContractState>(),
+        }
+    }
+    #[cfg(test)]
+    #[inline(always)]
+    pub fn contract_state_for_testing() -> ContractState {
+        unsafe_new_contract_state()
+    }
+    
+use starknet::storage::{
+    StorageMapMemberAddressTrait, StorageMemberAddressTrait,
+    StorageMapMemberAccessTrait, StorageMemberAccessTrait
+};
+#[cfg(test)]
+pub const TEST_CLASS_HASH: felt252 = 0x1086dfc31bbcf268e659eae270c18772df580a79d61a03d56056059861c874a;
+
+impl ContractStateI1I1 of
+    super::comp::UnsafeNewContractStateTraitForI1I1<ContractState> {
+    fn unsafe_new_contract_state() -> ContractState {
+        unsafe_new_contract_state()
+    }
+}
+impl ContractStateI1I2 of
+    super::comp::UnsafeNewContractStateTraitForI1I2<ContractState> {
+    fn unsafe_new_contract_state() -> ContractState {
+        unsafe_new_contract_state()
+    }
+}
+impl ContractStateI2I of
+    super::comp::UnsafeNewContractStateTraitForI2I<ContractState> {
+    fn unsafe_new_contract_state() -> ContractState {
+        unsafe_new_contract_state()
+    }
+}
+#[implicit_precedence(Pedersen, RangeCheck, Bitwise, EcOp, Poseidon, SegmentArena, GasBuiltin, System)]
+fn __wrapper__foo(mut data: Span::<felt252>) -> Span::<felt252> {
+    core::internal::require_implicit::<System>();
+    core::internal::revoke_ap_tracking();
+    core::option::OptionTraitImpl::expect(core::gas::withdraw_gas(), 'Out of gas');
+    
+    assert(core::array::SpanTrait::is_empty(data), 'Input too long for arguments');
+    core::option::OptionTraitImpl::expect(
+        core::gas::withdraw_gas_all(core::gas::get_builtin_costs()), 'Out of gas',
+    );
+    let mut contract_state = unsafe_new_contract_state();
+    foo(@contract_state, );
+    let mut arr = core::array::array_new();
+    // References.
+    // Result.
+    core::array::ArrayTrait::span(@arr)
+}
+
+
+pub mod __external {
+    pub use super::__wrapper__foo as foo;
+}
+pub mod __l1_handler {
+}
+pub mod __constructor {
+}
+    impl ContractStateEventEmitter of starknet::event::EventEmitter<
+        ContractState, Event
+    > {
+        fn emit<S, impl IntoImp: core::traits::Into<S, Event>>(
+            ref self: ContractState, event: S
+        ) {
+            let event: Event = core::traits::Into::into(event);
+            let mut keys = Default::<core::array::Array>::default();
+            let mut data = Default::<core::array::Array>::default();
+            starknet::Event::append_keys_and_data(@event, ref keys, ref data);
+            starknet::SyscallResultTraitImpl::unwrap_syscall(
+                starknet::syscalls::emit_event_syscall(
+                    core::array::ArrayTrait::span(@keys),
+                    core::array::ArrayTrait::span(@data),
+                )
+            )
+        }
+    }
+
+impl HasComponentImpl_comp of super::comp::HasComponent<ContractState> {
+    fn get_component(self: @ContractState) -> @super::comp::ComponentState<ContractState> {
+        self.comp_storage
+    }
+    fn get_component_mut(ref self: ContractState) -> super::comp::ComponentState<ContractState> {
+        super::comp::unsafe_new_component_state::<ContractState>()
+    }
+    fn get_contract(self: @super::comp::ComponentState<ContractState>) -> @ContractState {
+        @unsafe_new_contract_state()
+    }
+    fn get_contract_mut(ref self: super::comp::ComponentState<ContractState>) -> ContractState {
+        unsafe_new_contract_state()
+    }
+    fn emit<S, impl IntoImp: core::traits::Into<S, super::comp::Event>>(ref self: super::comp::ComponentState<ContractState>, event: S) {
+        let event: super::comp::Event = core::traits::Into::into(event);
+        let mut contract = super::comp::HasComponent::get_contract_mut(ref self);
+        ContractStateEventEmitter::emit(ref contract, Event::CompEvent(event));
+    }
+}
+
+
+impls:
+
+impl EventDrop of core::traits::Drop::<Event>;
+
+
+starknet_derive:
+
+impl EventIsEvent of starknet::Event<Event> {
+    fn append_keys_and_data(
+        self: @Event, ref keys: Array<felt252>, ref data: Array<felt252>
+    ) {
+        match self {
+            Event::CompEvent(val) => {
+                core::array::ArrayTrait::append(ref keys, selector!("CompEvent"));
+                starknet::Event::append_keys_and_data(
+                    val, ref keys, ref data
+                );
+            },
+        }
+    }
+    fn deserialize(
+        ref keys: Span<felt252>, ref data: Span<felt252>,
+    ) -> Option<Event> {
+        let __selector__ = *core::array::SpanTrait::pop_front(ref keys)?;
+        if __selector__ == selector!("CompEvent") {
+                let val = starknet::Event::deserialize(
+                    ref keys, ref data
+                )?;
+                return Option::Some(Event::CompEvent(val));
+        }
+        Option::None
+    }
+}
+impl EventCompEventIntoEvent of Into<super::comp::Event, Event> {
+    fn into(self: super::comp::Event) -> Event {
+        Event::CompEvent(self)
+    }
+}
+
+//! > expected_diagnostics
+error: Plugin diagnostic: Failed to generate ABI: Duplicate entry point: 'foo'. This is not currently supported.
+ --> lib.cairo:38:1
+#[starknet::contract]
+^*******************^

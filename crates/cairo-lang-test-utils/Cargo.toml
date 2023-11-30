@@ -1,0 +1,26 @@
+[package]
+name = "cairo-lang-test-utils"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license-file.workspace = true
+description = "Utilities for writing tests in the Cairo compiler project."
+
+# All logic in this crate is in cfg(test) or "testing". This feature exists to add extra safety by
+# enforcing dependent crates to specify feature "testing".
+[features]
+testing = ["dep:cairo-lang-utils", "dep:colored", "dep:log", "dep:pretty_assertions"]
+
+[dependencies]
+cairo-lang-utils = { path = "../cairo-lang-utils", optional = true, version = "2.3.1" }
+colored = { workspace = true, optional = true }
+log = { workspace = true, optional = true }
+pretty_assertions = { workspace = true, optional = true }
+
+[dev-dependencies]
+cairo-lang-utils = { path = "../cairo-lang-utils" }
+colored.workspace = true
+env_logger.workspace = true
+log.workspace = true
+pretty_assertions.workspace = true
+test-log.workspace = true
